@@ -1,0 +1,19 @@
+{
+  "checkoutUrl": "https://selar.com/7cs3v1tu78",
+
+  "spots": {
+    "total": 70,
+    "start": 42
+  },
+
+  "notifications": {
+    "everySeconds": 30,
+    "visibleSeconds": 6,
+    "sound": true,
+    "product": "From Photo to Viral Video: The Realistic AI Method",
+    "buyers": [
+      "Chinedu O.", "Aisha B.", "Tunde A.", "Ngozi E.", "Ibrahim S.", "Funmi K.", "Emeka N.",
+      "Zainab M.", "Segun F.", "Blessing U.", "Yusuf D.", "Kemi O.", "Obinna C.", "Hauwa L."
+    ]
+  }
+}
