@@ -1,60 +1,66 @@
-# Landing page — handoff notes
+# Quietwins — sales page
 
-Plain HTML / CSS / JS. No build step.
+A single-page sales site. Plain HTML, CSS and JavaScript: no framework and no build step.
 
 ```
-landing/
-├── index.html          # all sections, in order
-├── css/styles.css      # tokens, components, responsive rules
-├── js/main.js          # CONFIG + countdown, nav, sliders, media, switcher, FAQ
-└── assets/
-    ├── images/         # drop image files here (names below)
-    └── videos/         # drop video files here (names below)
+index.html        the page
+styles.css        all styles
+script.js         sliders, FAQ, offer pop-up, sticky bar, purchase notifications
+offer.json        offer numbers, buyer names and checkout link (edit this, not the code)
+favicon.svg       browser tab icon
+og-image.jpg      preview image shown when the link is shared (WhatsApp, Facebook, X)
+assets/images/    images
+assets/videos/    videos
+design-reference/ the original design files (not used by the live page)
 ```
 
-## Configure (top of `js/main.js`)
-- `spotsTotal` / `spotsStart` / `spotsStopAt` – founding-spots counter. Every visit starts at 35/50; each purchase notification adds one (stops at 49).
-- `popupDelayMs` – offer pop-up opens once per visit after 60s.
-- `toastEveryMs` / `toastVisibleMs` / `toastSound` / `buyers` – purchase notification (every 45s, synced with the spots counter, "ching" sound synthesised in-browser).
-- `checkoutUrl` – Selar checkout link applied to every `[data-checkout]` CTA.
-- `editMode` – `true` while building (placeholders accept click / drag-and-drop uploads, stored in the browser only). Set `false` before launch.
+## Running it
 
-## Media slots
-Each placeholder has `data-key` and `data-src`. The page loads `assets/<type>/<key>.<ext>` automatically
-(`.jpg/.jpeg/.png/.webp` for images, `.mp4/.webm/.mov` for videos). Browser uploads are for previewing only —
-put the final files in `assets/` with these names:
+The page has to be opened from a web address, not by double-clicking `index.html`.
+Browsers block `offer.json` for files opened straight from disk, so the purchase notifications would not run.
 
-| Section | File(s) | Frame |
+Any static host works (GitHub Pages, Netlify, Vercel, cPanel). To preview on your computer:
+
+```bash
+python -m http.server 5173
+```
+
+Then open http://localhost:5173.
+
+## Editing the offer: `offer.json`
+
+| Field | What it controls |
+|---|---|
+| `checkoutUrl` | Where every "Claim discount offer" button goes |
+| `spots.total` | Number of founding spots ("/70 spots taken", "first 70 people") |
+| `spots.start` | How many spots show as taken when the page loads |
+| `notifications.everySeconds` | How often the purchase notification appears |
+| `notifications.visibleSeconds` | How long each notification stays on screen |
+| `notifications.sound` | `true` plays a short "ching" (only after the visitor has tapped or scrolled the page) |
+| `notifications.product` | Product name shown in the notification |
+| `notifications.buyers` | Names shown in the notifications, picked in random order |
+
+Prices (₦14,500, ₦15,000, the value stack) are written directly in `index.html`.
+
+## Replacing media
+
+Keep the same file names and the page picks the new files up automatically.
+
+| Section | Files | Notes |
 |---|---|---|
-| 1 · Hero video | `videos/hero-video.mp4` | adapts to the video's shape |
-| 2 · AI video slider (4) | `videos/ai-video-1.mp4` … `ai-video-4.mp4` | 9:16 |
-| 3 · Reactions / comments (4) | `images/reaction-1.png` … `reaction-4.png` | 5:2, contained |
-| 5 · Faceless pages switcher (3, every 4s) | `images/faceless-page-1.png` … `faceless-page-3.png` | 5:4 |
-| 5 · Student videos slider (4) | `videos/student-video-1.mp4` … `student-video-4.mp4` | 9:16 |
-| 6 · Product cover / mockup | `images/product-cover.jpeg` | 3:4 |
-| 9 · Payout screenshots slider (8) | `images/payout-1.png` … `payout-8.png` | 4:5, contained |
+| Hero video | `videos/hero-video.mp4` | The frame takes the shape of the video |
+| AI video slider | `videos/ai-video-1.mp4` … `ai-video-4.mp4` | 9:16 |
+| Comment reactions | `images/reaction-1.png` … `reaction-4.png` | Shown whole, never cropped |
+| Faceless pages (switches every 4s) | `images/faceless-page-1.webp` … `faceless-page-3.webp` | Cropped from the top |
+| Student video slider | `videos/student-video-1.mp4` … `student-video-4.mp4` | 9:16 |
+| Product cover | `images/product-cover.webp` | 3:4 frame |
+| Payout screenshots | `images/payout-1.webp` … `payout-8.webp` | Each card takes the shape of its image |
 
-Frames are sized to the average shape of each group. `js/main.js → fitMedia()` uses cover only when a file is within 12%
-of its frame's shape; otherwise it letterboxes (contain) and fills the bars with the image's own edge colour, so nothing important is cropped.
+To keep the page fast on mobile data, export images as WebP around 1280px on the long side, and keep videos under about 1.5 Mbps.
+If you use a different file type (for example `.jpg`), update the matching `src` in `index.html`.
 
-## Sections
-Each `<section>` has an SEO-friendly `id`, a readable `data-section` name, `aria-labelledby` → its heading, and a comment banner.
+## Before sharing the link
 
-1. `#hero` — Hero Section
-2. `#story-problem` — Story / Problem Section (+ AI video slider)
-3. `#realism-proof` — Realism Proof Section
-4. `#how-it-works` — How It Works (The Method)
-5. `#credibility` — Credibility — My Pages & Student Results
-6. `#product-introduction` — Product Introduction
-7. `#three-step-system` — The 3-Step System + CTA
-8. `#free-bonuses` — Free Bonuses
-9. `#money-proof` — Money Proof — Payouts & Sales
-10. `#cost-value-stack` — Cost & Value Stack
-11. `#price-offer-guarantee` — Price Offer & Guarantee
-12. `#faq` — FAQ
-13. `#final-call-to-action` — Final Call to Action
-
-## Notes for refactoring
-Sections after the story were ported from the design canvas with inline styles; responsive behaviour is layered on via
-utility classes in `styles.css` (`r-grid`, `r-split`, `r-bento`, `r-stack`, `r-pill`, `slider__*`). Sliders show 2 items on
-mobile.
+Once the site has its domain, change `og:image` in `index.html` to the full URL
+(for example `https://your-domain.com/og-image.jpg`) and add an `og:url` tag.
+WhatsApp and Facebook only show the preview image when the URL is absolute.
