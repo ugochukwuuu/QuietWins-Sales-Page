@@ -96,7 +96,7 @@ body { padding-bottom: 72px; }
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 140px 20px 72px;
+  padding: 72px 20px 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -407,19 +407,13 @@ body { padding-bottom: 72px; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 640px) {
-  body { padding-bottom: 64px; }
-  .offerbar { gap: 12px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); justify-content: space-between; }
-  .offerbar__text { font-size: 13px; }
-  .offerbar__more { display: none; }
-  /* Two tidy lines: "🔥 ₦14,500" over "then ₦15,000" */
-  .offerbar__text { display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
-  .offerbar__price { font-size: 15px; white-space: nowrap; }
-  .offerbar__label, .offerbar__rest > .offerbar__sep:first-child { display: none; }
-  .offerbar__rest { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  /* Sticky bar stacks: full offer text on top, full-width button below */
+  body { padding-bottom: 116px; }
+  .offerbar { flex-direction: column; gap: 8px; padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); }
+  .offerbar__text { font-size: 13px; line-height: 1.4; text-align: center; text-wrap: balance; }
   /* beats the generic `a[data-checkout]` mobile button rule below so the bar's own compact size applies */
-  .offerbar a.offerbar__cta { white-space: nowrap; padding: 9px 14px !important; font-size: 13px !important; max-width: none; }
-  .offerbar__cta { padding: 9px 14px; font-size: 13px; }
-  .hero__content { padding: 110px 18px 56px; }
+  .offerbar a.offerbar__cta { width: 100% !important; max-width: 420px; padding: 11px 16px !important; font-size: 14px !important; text-align: center; }
+  .hero__content { padding: 48px 18px 56px; }
   .offer--top { margin-bottom: 36px; }
   .pill__text { font-size: 13px; }
   .btn, a[data-checkout] { width: auto !important; max-width: calc(100% - 48px); padding: 15px 24px !important; font-size: 15px !important; text-align: center; }
@@ -583,7 +577,7 @@ body.modal-open { overflow: hidden; }
 @keyframes spotsBump { 0% { color: inherit; } 30% { color: #fff; text-shadow: 0 0 12px rgba(255,90,31,.9); } 100% { color: inherit; } }
 
 @media (max-width: 640px) {
-  .toast { left: 16px; bottom: 80px; }
+  .toast { left: 16px; bottom: 132px; }
   .offer-modal__panel { padding: 32px 20px 22px; }
 }
 @media (prefers-reduced-motion: reduce) {

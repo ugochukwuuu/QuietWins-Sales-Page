@@ -40,7 +40,7 @@ Then open http://localhost:5173.
 | `notifications.product` | Product name shown in the notification |
 | `notifications.buyers` | Names shown in the notifications, picked in random order |
 
-Prices (₦14,500, ₦15,000, the value stack) are written directly in `index.html`.
+Prices (₦14,500, ₦20,000, the value stack) are written directly in `index.html`.
 
 ## Replacing media
 
@@ -59,8 +59,10 @@ Keep the same file names and the page picks the new files up automatically.
 To keep the page fast on mobile data, export images as WebP around 1280px on the long side, and keep videos under about 1.5 Mbps.
 If you use a different file type (for example `.jpg`), update the matching `src` in `index.html`.
 
-## Before sharing the link
+## Link previews
 
-Once the site has its domain, change `og:image` in `index.html` to the full URL
-(for example `https://your-domain.com/og-image.jpg`) and add an `og:url` tag.
-WhatsApp and Facebook only show the preview image when the URL is absolute.
+The preview card shown when the link is shared (WhatsApp, Facebook, X) uses `og-image.jpg`.
+`index.html` points to it with full URLs on https://www.quietwins.online (the bare domain redirects there). If the domain ever changes,
+update `og:url`, `og:image` and the `canonical` link in the `<head>`.
+
+To check the card or refresh a cached one, paste the link into https://developers.facebook.com/tools/debug/.
