@@ -271,6 +271,45 @@
     setInterval(show, (cfg.everySeconds || 30) * 1000);
   }
 
+  /* ---------- Ad pixel events (TikTok + Meta) ----------
+     The base pixels and PageView live in <head>; they only exist on the live domain.
+     If the price changes, update PRODUCT.value so ad reports show the right amount. */
+  const PRODUCT = { id: 'photo-to-viral-video', name: 'From Photo to Viral Video: The Realistic AI Method', value: 14500, currency: 'NGN' };
+
+  function trackEvent(name) {
+    try {
+      if (window.ttq) window.ttq.track(name, {
+        contents: [{ content_id: PRODUCT.id, content_type: 'product', content_name: PRODUCT.name }],
+        value: PRODUCT.value, currency: PRODUCT.currency,
+      });
+      if (window.fbq) window.fbq('track', name, {
+        content_ids: [PRODUCT.id], content_type: 'product', content_name: PRODUCT.name,
+        value: PRODUCT.value, currency: PRODUCT.currency,
+      });
+    } catch (e) { /* tracking must never break the page */ }
+  }
+
+  // ViewContent: once, when the price section comes into view
+  (function () {
+    const section = document.querySelector(POPUP_TRIGGER);
+    if (!section || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) { io.disconnect(); trackEvent('ViewContent'); }
+    }, { rootMargin: '0px 0px -30% 0px' });
+    io.observe(section);
+  })();
+
+  // InitiateCheckout: any "Claim discount" button. Navigation waits briefly so the events can send.
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[data-checkout]');
+    if (!a) return;
+    trackEvent('InitiateCheckout');
+    if (!window.ttq && !window.fbq) return;
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
+    e.preventDefault();
+    setTimeout(() => { window.location.href = a.href; }, 300);
+  });
+
   /* ---------- Load offer.json ---------- */
   fetch('offer.json', { cache: 'no-cache' })
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })

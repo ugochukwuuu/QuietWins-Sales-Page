@@ -59,6 +59,20 @@ Keep the same file names and the page picks the new files up automatically.
 To keep the page fast on mobile data, export images as WebP around 1280px on the long side, and keep videos under about 1.5 Mbps.
 If you use a different file type (for example `.jpg`), update the matching `src` in `index.html`.
 
+## Ad pixels (TikTok + Meta)
+
+Both pixels are in the `<head>` of `index.html` (TikTok `DB9KC23C77U6POU9AQ2G`, Meta `1118289207283370`).
+They only switch on when the page is served from quietwins.online, so local previews don't send test visits.
+
+| Event | When it fires |
+|---|---|
+| `PageView` (both) | Every page load |
+| `ViewContent` (both) | Once, when the visitor reaches the price section |
+| `InitiateCheckout` (both) | Any "Claim discount offer" click; the jump to Selar waits 0.3s so the event can send |
+
+Events carry the product name, `value: 14500` and `currency: NGN`, set in `PRODUCT` near the bottom of `script.js`.
+If the price changes, update `PRODUCT.value` too. Purchases happen on Selar, so add the same pixel IDs in Selar to track sales.
+
 ## Link previews
 
 The preview card shown when the link is shared (WhatsApp, Facebook, X) uses `og-image.jpg`.
