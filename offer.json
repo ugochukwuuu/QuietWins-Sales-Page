@@ -3,6 +3,7 @@
     "paystackPublicKey": "pk_live_961bbe1aaeb86b65b62bf78b924d56c26e2003b4",
     "amount": 14500,
     "currency": "NGN",
+    "channels": ["bank_transfer"],
     "leadEndpoint": "https://script.google.com/macros/s/AKfycbywyXCPLptxRmkrhGtsDknOcRx6byGamJwIhCukT2MPzV2hjLhs657og-Zx3Oku3bs_0A/exec",
     "thankYouUrl": "thank-you.html"
   },

@@ -435,6 +435,7 @@
           email: buyer.email,
           amount: Math.round(cfg.amount * 100), // kobo
           currency: cfg.currency,
+          ...(cfg.channels && cfg.channels.length ? { channels: cfg.channels } : {}), // payment methods shown in Paystack
           reference,
           firstName, lastName: rest.join(' '),
           phone: '+234' + p,
