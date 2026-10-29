@@ -1,0 +1,130 @@
+/* =========================================================
+   Thank you page — loads after styles.css (reuses tokens, .pill, .btn, .hero__grid)
+   ========================================================= */
+.ty-body { padding-bottom: 0; }
+.ty {
+  position: relative; overflow: hidden;
+  min-height: 100vh; min-height: 100svh;
+  display: flex; justify-content: center;
+  padding: clamp(56px, 9vh, 104px) 20px 64px;
+}
+.ty__glow {
+  position: absolute; left: 50%; top: -180px; width: 820px; max-width: 140%; height: 520px;
+  transform: translateX(-50%); pointer-events: none;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,90,31,.16), transparent 70%);
+}
+.ty__wrap {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 620px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+/* Success badge */
+.ty__check {
+  width: 76px; height: 76px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: #fff; background: var(--accent);
+  box-shadow: 0 0 0 8px rgba(255,90,31,.12), 0 0 0 18px rgba(255,90,31,.06), 0 16px 48px rgba(255,90,31,.45);
+  animation: tyPop .6s cubic-bezier(.2,1.4,.4,1) both;
+}
+.ty__tick { stroke-dasharray: 24; stroke-dashoffset: 24; animation: tyDraw .5s .35s ease-out forwards; }
+@keyframes tyPop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes tyDraw { to { stroke-dashoffset: 0; } }
+
+.ty__pill { margin-top: 28px; }
+.ty__title { margin-top: 20px; font-size: clamp(32px, 5.4vw, 50px); }
+.ty__sub { margin-top: 16px; max-width: 540px; }
+.ty__sub strong { color: var(--white); font-weight: 600; }
+
+/* Progress */
+.ty__steps {
+  list-style: none; margin: 32px 0 0; padding: 0;
+  width: 100%; max-width: 460px;
+  display: flex; align-items: center; gap: 10px;
+}
+.ty__step { display: flex; align-items: center; gap: 8px; flex: none; font-size: 13px; font-weight: 600; color: #6B6B6B; white-space: nowrap; }
+.ty__num {
+  width: 24px; height: 24px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-size: 12px; font-weight: 700;
+  background: var(--charcoal); border: 1px solid var(--line); color: #8C8C8C;
+}
+.ty__step.is-done { color: var(--muted-2); }
+.ty__step.is-done .ty__num { background: rgba(31,181,122,.14); border-color: rgba(31,181,122,.4); color: #3DD68C; }
+.ty__step.is-active { color: var(--white); }
+.ty__step.is-active .ty__num { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 0 4px rgba(255,90,31,.18); }
+.ty__line { flex: 1; min-width: 12px; height: 1px; background: var(--line); }
+
+/* Cards */
+.ty__card {
+  width: 100%; margin-top: 20px;
+  border-radius: 24px; background: #111; border: 1px solid #222;
+}
+.ty__card--main {
+  margin-top: 28px;
+  padding: clamp(28px, 5vw, 40px) clamp(20px, 5vw, 40px);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  border-color: rgba(255,90,31,.32);
+  box-shadow: 0 0 0 1px rgba(255,90,31,.06), 0 24px 60px rgba(0,0,0,.45);
+}
+.ty__tg {
+  width: 60px; height: 60px; border-radius: 18px;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(160deg, #37AEE2, #1E96C8);
+  box-shadow: 0 10px 30px rgba(42,171,238,.35);
+}
+.ty__h2 { margin: 6px 0 0; font-family: var(--font-head); font-weight: 600; font-size: clamp(22px, 3vw, 26px); line-height: 1.2; letter-spacing: -0.025em; color: var(--white); text-wrap: balance; }
+.ty__h3 { margin: 0; font-family: var(--font-head); font-weight: 600; font-size: 17px; line-height: 1.3; letter-spacing: -0.015em; color: var(--white); }
+.ty__text { margin: 0; font-size: 16px; line-height: 1.65; color: var(--muted); text-wrap: pretty; max-width: 460px; }
+.ty__text strong { color: var(--white); font-weight: 600; }
+.ty__text--sm { font-size: 15px; line-height: 1.6; }
+.ty__btn { margin-top: 10px; width: 100%; max-width: 380px; padding: 18px 28px; font-size: 17px; }
+.ty__fine { font-size: 13px; color: #6B6B6B; }
+
+/* Copy link */
+.ty__copy {
+  width: 100%; margin-top: 14px; padding-top: 22px;
+  border-top: 1px solid #1F1F1F;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.ty__copy-label { font-size: 13px; color: #8C8C8C; }
+.ty__copy-row {
+  width: 100%; max-width: 380px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 6px 6px 16px; border-radius: 14px;
+  background: #0B0B0B; border: 1px solid #262626;
+}
+.ty__link { flex: 1; min-width: 0; text-align: left; font-size: 14px; font-weight: 500; color: var(--muted-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ty__link:hover { color: var(--white); }
+.ty__copy-btn {
+  flex: none; min-height: 40px; padding: 0 16px; border-radius: 10px; cursor: pointer;
+  background: var(--charcoal); border: 1px solid var(--line); color: var(--white);
+  font: 600 14px/1 var(--font-body); transition: background .2s, border-color .2s, color .2s;
+}
+.ty__copy-btn:hover { border-color: #444; }
+.ty__copy-btn.is-copied { background: rgba(31,181,122,.14); border-color: rgba(31,181,122,.45); color: #3DD68C; }
+
+/* Email card */
+.ty__card--mail {
+  padding: 20px 22px;
+  display: flex; align-items: flex-start; gap: 16px; text-align: left;
+}
+.ty__mail-icon {
+  width: 42px; height: 42px; border-radius: 12px; flex: none;
+  display: grid; place-items: center; color: var(--accent);
+  background: rgba(255,90,31,.1); border: 1px solid rgba(255,90,31,.25);
+}
+.ty__mail-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ty__mail-body strong[data-ty-email] { word-break: break-all; }
+
+.ty__ref { margin: 22px 0 0; font-size: 13px; line-height: 1.6; color: #6B6B6B; }
+.ty__ref strong { color: var(--muted-2); font-weight: 600; letter-spacing: .02em; }
+
+@media (max-width: 480px) {
+  .ty__steps { gap: 6px; }
+  .ty__step { font-size: 12px; gap: 6px; }
+  .ty__num { width: 22px; height: 22px; font-size: 11px; }
+  .ty__card--mail { padding: 18px; gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ty__check, .ty__tick { animation: none; stroke-dashoffset: 0; }
+}

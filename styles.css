@@ -540,6 +540,66 @@ body { padding-bottom: 72px; }
 .offer-modal__skip:hover { color: #A1A1A1; }
 body.modal-open { overflow: hidden; }
 
+/* ---------- Checkout pop-up ---------- */
+.co { z-index: 1001; }
+.co__card { max-width: 480px; max-height: calc(100dvh - 40px); overflow-y: auto; text-align: left; padding: 10px; overscroll-behavior: contain; }
+.co__panel { padding: 26px 26px 26px; align-items: stretch; gap: 22px; }
+.co__steps { display: flex; align-items: center; gap: 10px; padding-right: 48px; min-height: 36px; }
+.co__step { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #6B6B6B; white-space: nowrap; }
+.co__num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: #1C1C1C; border: 1px solid #2A2A2A; color: #8C8C8C; }
+.co__step.is-active { color: #fff; }
+.co__step.is-active .co__num { background: var(--accent); border-color: var(--accent); color: #fff; }
+.co__step.is-done { color: #BDBDBD; }
+.co__step.is-done .co__num { background: rgba(255,90,31,.12); border-color: rgba(255,90,31,.45); color: var(--accent); }
+.co__line { flex: 0 1 36px; height: 1px; background: #2A2A2A; }
+.co__view { display: flex; flex-direction: column; gap: 22px; margin: 0; }
+.co__view[hidden] { display: none; }
+.co__head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+.co__title { margin: 0; font-family: var(--font-head); font-weight: 600; font-size: clamp(22px, 2.6vw, 26px); line-height: 1.22; letter-spacing: -0.03em; color: #fff; text-wrap: balance; }
+.co__title .hl { color: var(--accent); }
+.co__text { margin: 0; font-size: 15px; line-height: 1.6; color: var(--muted); text-wrap: pretty; }
+.co__text strong { color: #fff; font-weight: 600; }
+.co__summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-radius: 14px; background: #0F0F0F; border: 1px solid #242424; }
+.co__product { font-size: 14px; font-weight: 600; line-height: 1.4; color: #E5E5E5; }
+.co__plus { display: block; margin-top: 2px; font-weight: 500; color: #8C8C8C; }
+.co__price { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-family: var(--font-head); }
+.co__price s { font-size: 13px; color: #6B6B6B; text-decoration-color: var(--accent); }
+.co__price strong { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+.co__field { display: flex; flex-direction: column; gap: 10px; }
+.co__label { font-size: 13.5px; font-weight: 600; color: #D4D4D4; }
+.co__hint { font-weight: 500; color: #737373; }
+.co__input { width: 100%; box-sizing: border-box; height: 52px; padding: 0 16px; border-radius: 14px; background: #0F0F0F; border: 1px solid #2A2A2A; color: #fff; font: 500 16px/1 var(--font-body); outline: none; transition: border-color .2s, box-shadow .2s; }
+.co__input::placeholder { color: #5A5A5A; }
+.co__input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,90,31,.15); }
+.co__phone { position: relative; display: block; }
+.co__prefix { position: absolute; left: 1px; top: 1px; bottom: 1px; display: flex; align-items: center; padding: 0 12px 0 14px; border-right: 1px solid #2A2A2A; font-size: 15px; font-weight: 600; color: #BDBDBD; pointer-events: none; }
+.co__phone .co__input { padding-left: 100px; }
+.co__err { display: none; font-size: 13px; color: #F97066; }
+.co__field.is-invalid .co__input { border-color: #F04438; }
+.co__field.is-invalid .co__err { display: block; }
+.co__submit { margin-top: 10px; width: 100%; padding: 17px 28px; border: 0; cursor: pointer; font-family: var(--font-body); }
+.co__err--pay { margin: -8px 0 0; text-align: center; line-height: 1.5; }
+.co__err--pay:not(:empty) { display: block; }
+.co__submit[disabled] { opacity: .7; cursor: progress; transform: none; }
+.co__fine { margin: -8px 0 0; font-size: 13px; color: #8C8C8C; text-align: center; }
+.co__view--owned { align-items: center; text-align: center; gap: 18px; padding-top: 6px; }
+.co__view--owned .co__submit { margin-top: 4px; }
+.co__owned-icon { width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; color: var(--accent); background: rgba(255,90,31,.1); border: 1px solid rgba(255,90,31,.3); }
+.co__note { margin: 0; padding: 14px 16px; border-radius: 14px; background: rgba(255,90,31,.06); border: 1px solid rgba(255,90,31,.25); font-size: 14px; line-height: 1.6; color: #D4D4D4; text-wrap: pretty; }
+.co__note strong { color: #fff; font-weight: 700; }
+.co__back { margin-top: -6px; background: none; border: 0; padding: 4px; cursor: pointer; font-family: var(--font-body); font-size: 14px; color: #8C8C8C; text-decoration: underline; text-underline-offset: 3px; }
+.co__back:hover { color: #D4D4D4; }
+.co.is-owned .co__steps { display: none; }
+@media (max-width: 480px) {
+  .co { padding: 12px; }
+  .co__panel { padding: 22px 18px; }
+  .co__view { gap: 18px; }
+}
+/* beats the generic mobile `.btn` rule so the pay button stays full width */
+@media (max-width: 640px) {
+  .co .co__submit { width: 100% !important; max-width: none; }
+}
+
 /* ---------- Purchase toast ---------- */
 .toast {
   position: fixed; left: 24px; bottom: 96px; z-index: 900;

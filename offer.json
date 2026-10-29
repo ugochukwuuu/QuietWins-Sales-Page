@@ -1,5 +1,11 @@
 {
-  "checkoutUrl": "https://selar.com/7cs3v1tu78",
+  "checkout": {
+    "paystackPublicKey": "pk_test_a1e457af9853a599cc19352d0f95636b96a78df0",
+    "amount": 14500,
+    "currency": "NGN",
+    "leadEndpoint": "https://script.google.com/macros/s/AKfycbywyXCPLptxRmkrhGtsDknOcRx6byGamJwIhCukT2MPzV2hjLhs657og-Zx3Oku3bs_0A/exec",
+    "thankYouUrl": "thank-you.html"
+  },
 
   "spots": {
     "total": 70,
