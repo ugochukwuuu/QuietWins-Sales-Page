@@ -142,7 +142,7 @@ function emailHtml_(o) {
     '  <tr><td style="font-family:Arial,sans-serif;font-size:16px;line-height:1.65;color:#BDBDBD;padding-bottom:28px">Welcome to <strong style="color:#FFFFFF">From Photo to Viral Video: The Realistic AI Method</strong>. Your next step is to join the private Telegram group. Your guide, your 4 bonuses, the step-by-step recorded videos and the community are all inside.</td></tr>' +
     '  <tr><td align="center" style="padding-bottom:22px">' +
     '    <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" bgcolor="#FF5A1F" style="border-radius:999px">' +
-    '      <a href="https://t.me/+xAI86HNgojcwMWY0" target="_blank" style="display:inline-block;padding:17px 34px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:999px">Join the Telegram group →</a>' +
+    '      <a href="' + TELEGRAM_URL + '" target="_blank" style="display:inline-block;padding:17px 34px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:999px">Join the Telegram group →</a>' +
     '    </td></tr></table>' +
     '  </td></tr>' +
     '  <tr><td style="padding:4px 0 26px">' +
@@ -153,7 +153,7 @@ function emailHtml_(o) {
     '      </table>' +
     '    </td></tr></table>' +
     '  </td></tr>' +
-    '  <tr><td style="border-top:1px solid #222222;padding-top:20px;font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#8C8C8C">Button not working? Copy this link into your browser:<br><a href="https://t.me/+xAI86HNgojcwMWY0" target="_blank" style="color:#FF8A4C;text-decoration:underline;word-break:break-all">https://t.me/+xAI86HNgojcwMWY0</a></td></tr>' +
+    '  <tr><td style="border-top:1px solid #222222;padding-top:20px;font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#8C8C8C">Button not working? Copy this link into your browser:<br><a href="' + TELEGRAM_URL + '" target="_blank" style="color:#FF8A4C;text-decoration:underline;word-break:break-all">' + esc(TELEGRAM_URL) + '</a></td></tr>' +
     '  </table>' +
     '</td></tr>' +
     '<tr><td style="padding:22px 4px 0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#6B6B6B">Order reference: ' + esc(o.ref) + ' · Paystack has sent your payment receipt separately.<br>You\'re receiving this because you bought From Photo to Viral Video: The Realistic AI Method.</td></tr>' +
