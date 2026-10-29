@@ -344,12 +344,12 @@
       phone: v => /^[789]\d{9}$/.test(normPhone(v)),
     };
     function send(stage, extra) {
-      if (!cfg.leadEndpoint) return;
+      if (!cfg.leadEndpoint) return Promise.resolve();
       try {
         // text/plain + no-cors avoids a CORS preflight, which Google Apps Script can't answer
-        fetch(cfg.leadEndpoint, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ stage, ...buyer, ...extra, amount: cfg.amount, page: location.href, time: new Date().toISOString() }) });
-      } catch (e) {}
+        return fetch(cfg.leadEndpoint, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ stage, ...buyer, ...extra, amount: cfg.amount, page: location.href, time: new Date().toISOString() }) }).catch(() => {});
+      } catch (e) { return Promise.resolve(); }
     }
     // Asks the Sheet if this email already paid. Any error or slow reply (>6s) lets the payment go ahead.
     async function alreadyOwned(email) {
@@ -445,10 +445,12 @@
           ] },
           // Paystack's window opens underneath our pop-up, so step aside while it's open
           onLoad: () => { busy(true, 'Complete payment in the Paystack window…'); step(1); modal.hidden = true; },
-          onSuccess: tx => {
+          onSuccess: async tx => {
             const ref = (tx && tx.reference) || reference;
-            send('paid', { reference: ref, transaction: tx && tx.transaction });
             busy(true, 'Payment confirmed. Taking you in…');
+            modal.hidden = false;
+            // Leave only once the Sheet has the "paid" row (it sends the welcome email), or after 8s at most
+            await Promise.race([send('paid', { reference: ref, transaction: tx && tx.transaction }), new Promise(r => setTimeout(r, 8000))]);
             location.href = cfg.thankYouUrl + '?ref=' + encodeURIComponent(ref) + '&name=' + encodeURIComponent(firstName);
           },
           onCancel: () => { send('cancelled', { reference }); modal.hidden = false; busy(false); step(0); payErr.textContent = 'Payment was cancelled. You can try again whenever you\'re ready.'; },

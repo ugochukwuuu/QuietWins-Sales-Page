@@ -26,7 +26,7 @@
  * Sends from the Google account that deploys the script (Gmail daily quota: ~100/day free, 1,500/day Workspace).
  * For higher volume, swap MailApp for Brevo / Resend / Mailchimp Transactional with the same HTML.
  */
-var TELEGRAM_URL = 'https://t.me/+xAI86HNgojcwMWY0';
+var TELEGRAM_URL = 'https://t.me/+oFJn_kHmTOk1ZWJk';
 var EXPECTED_AMOUNT_KOBO = 14500 * 100; // keep in sync with checkout.amount in offer.json
 var FROM_NAME = 'Quietwins';
 var SUBJECT = "You're in! Your order details + Telegram group link 🎉";
@@ -42,46 +42,55 @@ function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
   if (sheet.getLastRow() === 0) sheet.appendRow(COLUMNS);
   if (d.stage === 'check') return out_(checkOwned_(sheet, d));
-  var verified = '', sent = '';
+  var verified = '', sent = '', note = d.note || '';
 
   if (d.stage === 'paid' && d.reference) {
-    var props = PropertiesService.getScriptProperties();
-    var key = 'sent_' + d.reference;
-    var tx = verify_(d.reference);
-    verified = tx ? 'yes' : 'no';
-    if (tx && !props.getProperty(key)) {
-      var o = order_(tx, d.name, d.phone ? '+234 ' + d.phone : '');
-      sendWelcome_(o);
-      if (OWNER_EMAIL) MailApp.sendEmail({ to: OWNER_EMAIL, subject: 'New sale: ' + o.name + ' · ' + o.amount, name: FROM_NAME, body: orderText_(o) });
-      props.setProperty(key, '1');
-      sent = 'yes';
+    try {
+      var props = PropertiesService.getScriptProperties();
+      var key = 'sent_' + d.reference;
+      var tx = verify_(d.reference, 3); // Paystack can take a moment to mark a fresh payment as successful
+      verified = tx ? 'yes' : 'no';
+      if (!tx) note = 'not verified: ' + VERIFY_NOTE;
+      else if (props.getProperty(key)) note = 'welcome email already sent for this reference';
+      else {
+        var o = order_(tx, d.name, d.phone ? '+234 ' + d.phone : '');
+        sendWelcome_(o);
+        props.setProperty(key, '1');
+        sent = 'yes';
+        note = 'welcome email sent to ' + o.email;
+        if (OWNER_EMAIL) MailApp.sendEmail({ to: OWNER_EMAIL, subject: 'New sale: ' + o.name + ' · ' + o.amount, name: FROM_NAME, body: orderText_(o) });
+      }
+    } catch (err) {
+      note = 'error: ' + (err && err.message || err); // logged in the Sheet instead of failing silently
     }
   }
-  sheet.appendRow([d.time || new Date().toISOString(), d.stage, d.name, d.email, d.phone ? "'+234 " + d.phone : '', d.reference || '', verified, sent, d.note || '', d.page]);
+  sheet.appendRow([d.time || new Date().toISOString(), d.stage, d.name, d.email, d.phone ? "'+234 " + d.phone : '', d.reference || '', verified, sent, note, d.page]);
   return out_({ ok: true });
 }
 
 // Before payment: has this email already paid? If so, re-send the access email to that address
 // (the Telegram link only ever goes to the inbox on file, never back to the browser).
+// Every "paid" row is re-checked with Paystack, so a payment whose first check failed still counts.
 function checkOwned_(sheet, d) {
   var email = String(d.email || '').trim().toLowerCase();
   if (!email) return { owned: false };
   var rows = sheet.getDataRange().getValues(), h = rows[0];
   var col = function (name) { return h.indexOf(name); };
-  var cStage = col('Stage'), cEmail = col('Email'), cRef = col('Reference'), cVer = col('Verified'), cName = col('Name'), cPhone = col('Phone');
+  var cStage = col('Stage'), cEmail = col('Email'), cRef = col('Reference'), cName = col('Name'), cPhone = col('Phone');
   for (var i = rows.length - 1; i > 0; i--) {
     var r = rows[i];
-    if (r[cStage] !== 'paid' || r[cVer] !== 'yes' || String(r[cEmail]).trim().toLowerCase() !== email) continue;
-    var cache = CacheService.getScriptCache(), ck = 'resent_' + email, sent = '';
+    if (r[cStage] !== 'paid' || String(r[cEmail]).trim().toLowerCase() !== email) continue;
+    var tx = verify_(r[cRef], 1);
+    if (!tx) continue;
+    var cache = CacheService.getScriptCache(), ck = 'resent_' + email, sent = '', note = 're-sent recently, skipped';
     if (!cache.get(ck)) {
-      var tx = verify_(r[cRef]);
-      if (tx) {
+      try {
         sendWelcome_(order_(tx, r[cName], String(r[cPhone] || '')));
         cache.put(ck, '1', RESEND_COOLDOWN_SECONDS);
-        sent = 'yes';
-      }
+        sent = 'yes'; note = 'access email re-sent';
+      } catch (err) { note = 'error: ' + (err && err.message || err); }
     }
-    sheet.appendRow([d.time || new Date().toISOString(), 'already bought', r[cName], email, r[cPhone] ? "'" + r[cPhone] : '', r[cRef], 'yes', sent, sent ? 'access email re-sent' : 're-sent recently, skipped', d.page]);
+    sheet.appendRow([d.time || new Date().toISOString(), 'already bought', r[cName], email, r[cPhone] ? "'" + r[cPhone] : '', r[cRef], 'yes', sent, note, d.page]);
     return { owned: true };
   }
   return { owned: false };
@@ -112,15 +121,25 @@ function sendWelcome_(o) {
   MailApp.sendEmail({ to: o.email, subject: SUBJECT, name: FROM_NAME, htmlBody: emailHtml_(o), body: orderText_(o) });
 }
 
-function verify_(ref) {
+// Asks Paystack whether the payment really succeeded (secret key, server-side).
+// Tries up to `tries` times, 2 seconds apart. On failure, VERIFY_NOTE says why (shown in the Sheet's Note column).
+var VERIFY_NOTE = '';
+function verify_(ref, tries) {
   var secret = PropertiesService.getScriptProperties().getProperty('PAYSTACK_SECRET_KEY');
-  if (!secret) return null;
-  var res = UrlFetchApp.fetch('https://api.paystack.co/transaction/verify/' + encodeURIComponent(ref),
-    { headers: { Authorization: 'Bearer ' + secret }, muteHttpExceptions: true });
-  try {
-    var j = JSON.parse(res.getContentText());
-    return j.status && j.data && j.data.status === 'success' && j.data.amount >= EXPECTED_AMOUNT_KOBO ? j.data : null;
-  } catch (err) { return null; }
+  if (!secret) { VERIFY_NOTE = 'PAYSTACK_SECRET_KEY script property is missing'; return null; }
+  for (var n = 0; n < (tries || 1); n++) {
+    if (n) Utilities.sleep(2000);
+    var res = UrlFetchApp.fetch('https://api.paystack.co/transaction/verify/' + encodeURIComponent(ref),
+      { headers: { Authorization: 'Bearer ' + secret }, muteHttpExceptions: true });
+    try {
+      var j = JSON.parse(res.getContentText());
+      if (!j.status || !j.data) { VERIFY_NOTE = 'Paystack said: ' + (j.message || res.getResponseCode()); continue; }
+      if (j.data.status !== 'success') { VERIFY_NOTE = 'payment status is "' + j.data.status + '"'; continue; }
+      if (j.data.amount < EXPECTED_AMOUNT_KOBO) { VERIFY_NOTE = 'amount ' + j.data.amount / 100 + ' is below the price'; return null; }
+      return j.data;
+    } catch (err) { VERIFY_NOTE = 'unreadable reply from Paystack (' + res.getResponseCode() + ')'; }
+  }
+  return null;
 }
 
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
