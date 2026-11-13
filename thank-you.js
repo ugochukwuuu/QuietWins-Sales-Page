@@ -7,6 +7,7 @@
   var TELEGRAM_URL = 'https://t.me/+oFJn_kHmTOk1ZWJk';
   var PRODUCT = { id: 'photo-to-viral-video', name: 'From Photo to Viral Video: The Realistic AI Method', value: 8000, currency: 'NGN' };
   var q = new URLSearchParams(location.search), buyer = {};
+  var amt = +q.get('amt'); if (amt > 0) PRODUCT.value = amt; // amount actually charged (set by script.js)
   try { buyer = JSON.parse(localStorage.getItem('qw-buyer')) || {}; } catch (e) {}
   var $ = function (s) { return document.querySelector(s); };
 

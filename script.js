@@ -8,22 +8,59 @@
   const POPUP_TRIGGER = '#price-offer-guarantee';
   const pad = n => String(n).padStart(2, '0');
 
-  /* ---------- Founding spots (progress bars + counts) ---------- */
-  const Spots = (() => {
-    let total = 70, start = 42, taken = 42;
-    const pct = () => (taken / total) * 100;
-    function render(bump) {
-      document.querySelectorAll('[data-spots-total]').forEach(el => { el.textContent = total; });
-      document.querySelectorAll('[data-spots-count]').forEach(el => {
-        el.textContent = taken;
-        if (bump) { el.classList.remove('spots-bump'); void el.offsetWidth; el.classList.add('spots-bump'); }
-      });
-      document.querySelectorAll('[data-spots-left]').forEach(el => { el.textContent = total - taken; });
-      document.querySelectorAll('[data-spots-bar]').forEach(el => { el.style.width = pct().toFixed(1) + '%'; });
+  /* ---------- Founding-price deadline + live countdowns ----------
+     The deadline and the price after it are set on <html data-deadline data-price-after> in index.html.
+     When time is up, html.is-expired hides the discount parts (styles.css), every [data-price-now]
+     switches to the after-deadline price and checkout charges it. This also happens live,
+     for anyone watching the timer reach zero. */
+  const Deadline = (() => {
+    const root = document.documentElement;
+    const end = Date.parse(root.dataset.deadline || '');
+    const priceAfter = +root.dataset.priceAfter || 0;
+    const naira = n => '₦' + Number(n).toLocaleString('en-NG');
+    const isExpired = () => !!end && end <= Date.now();
+    const waiting = [];
+    let timer;
+
+    // "Sunday 15 November at midnight" (a midnight deadline is the end of the day before), in Lagos time
+    if (end) {
+      const tz = { timeZone: 'Africa/Lagos' };
+      const time = new Intl.DateTimeFormat('en-GB', { ...tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(end);
+      const midnight = time === '00:00';
+      const day = new Intl.DateTimeFormat('en-GB', { ...tz, weekday: 'long', day: 'numeric', month: 'long' }).format(midnight ? end - 1 : end);
+      const at = midnight ? 'midnight' : new Intl.DateTimeFormat('en-GB', { ...tz, hour: 'numeric', minute: '2-digit', hour12: true }).format(end);
+      document.querySelectorAll('[data-deadline-text]').forEach(el => { el.textContent = `${day} at ${at}`; });
     }
+
+    function tick() {
+      const left = Math.max(0, end - Date.now()), t = Math.floor(left / 1000);
+      const d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), sec = t % 60;
+      document.querySelectorAll('[data-countdown]').forEach(el => {
+        el.querySelector('[data-cd="d"]').textContent = pad(d);
+        el.querySelector('[data-cd="h"]').textContent = pad(h);
+        el.querySelector('[data-cd="m"]').textContent = pad(m);
+        el.querySelector('[data-cd="s"]').textContent = pad(sec);
+      });
+      const short = d ? `${d}d ${pad(h)}h ${pad(m)}m` : `${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+      document.querySelectorAll('[data-countdown-text]').forEach(el => { el.textContent = short; });
+      if (!left) expire();
+    }
+    function expire() {
+      clearInterval(timer);
+      root.classList.add('is-expired');
+      if (priceAfter) document.querySelectorAll('[data-price-now]').forEach(el => { el.textContent = naira(priceAfter); });
+      // There's no discount any more, so "Claim discount offer now" becomes "Get instant access"
+      document.querySelectorAll('[data-checkout]').forEach(a => {
+        a.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = n.textContent.replace(/claim discount offer (now|asap)/i, 'Get instant access'); });
+      });
+      waiting.splice(0).forEach(fn => fn(priceAfter));
+    }
+    if (end) { tick(); if (!isExpired()) timer = setInterval(tick, 1000); }
+
     return {
-      configure(cfg) { total = cfg.total; start = cfg.start; taken = start; render(); },
-      add() { taken = taken >= total ? start : taken + 1; render(true); return taken; },
+      isExpired,
+      // Runs fn(priceAfter) now if the deadline has passed, otherwise the moment it does
+      onExpire(fn) { if (isExpired()) fn(priceAfter); else waiting.push(fn); },
     };
   })();
 
@@ -195,7 +232,7 @@
     if (!modal) return;
     let lastFocus;
     function open() {
-      if (!modal.hidden) return;
+      if (!modal.hidden || Deadline.isExpired()) return;
       lastFocus = document.activeElement;
       modal.hidden = false;
       document.body.classList.add('modal-open');
@@ -245,22 +282,20 @@
     };
   })();
 
-  /* ---------- Purchase notifications (synced with spots) ---------- */
+  /* ---------- Purchase notifications ---------- */
   function startNotifications(cfg) {
     const toast = document.getElementById('purchase-toast');
     if (!toast || !cfg.buyers || !cfg.buyers.length) return;
     const nameEl = toast.querySelector('[data-toast-name]'), timeEl = toast.querySelector('[data-toast-time]');
-    const spotEl = toast.querySelector('[data-toast-spot]'), productEl = toast.querySelector('[data-toast-product]');
+    const productEl = toast.querySelector('[data-toast-product]');
     if (productEl && cfg.product) productEl.textContent = cfg.product;
     Ching.enabled = cfg.sound !== false;
     const pool = cfg.buyers.slice().sort(() => Math.random() - 0.5);
     let n = 0, hideT;
     function hide() { toast.classList.remove('is-visible'); clearTimeout(hideT); setTimeout(() => { if (!toast.classList.contains('is-visible')) toast.hidden = true; }, 450); }
     function show() {
-      const spot = Spots.add();
       nameEl.textContent = pool[n++ % pool.length];
       timeEl.textContent = 'Just now';
-      spotEl.textContent = spot;
       toast.hidden = false;
       requestAnimationFrame(() => toast.classList.add('is-visible'));
       Ching.play();
@@ -273,8 +308,10 @@
 
   /* ---------- Ad pixel events (TikTok + Meta) ----------
      The base pixels and PageView live in <head>; they only exist on the live domain.
-     If the price changes, update PRODUCT.value so ad reports show the right amount. */
+     If the price changes, update PRODUCT.value so ad reports show the right amount
+     (after the deadline it switches to data-price-after automatically). */
   const PRODUCT = { id: 'photo-to-viral-video', name: 'From Photo to Viral Video: The Realistic AI Method', value: 8000, currency: 'NGN' };
+  Deadline.onExpire(price => { if (price) PRODUCT.value = price; });
 
   function trackEvent(name) {
     try {
@@ -452,7 +489,7 @@
             modal.hidden = false;
             // Leave only once the Sheet has the "paid" row (it sends the welcome email), or after 8s at most
             await Promise.race([send('paid', { reference: ref, transaction: tx && tx.transaction }), new Promise(r => setTimeout(r, 8000))]);
-            location.href = cfg.thankYouUrl + '?ref=' + encodeURIComponent(ref) + '&name=' + encodeURIComponent(firstName);
+            location.href = cfg.thankYouUrl + '?ref=' + encodeURIComponent(ref) + '&name=' + encodeURIComponent(firstName) + '&amt=' + cfg.amount;
           },
           onCancel: () => { send('cancelled', { reference }); modal.hidden = false; busy(false); step(0); payErr.textContent = 'Payment was cancelled. You can try again whenever you\'re ready.'; },
           onError: err => { send('failed', { reference, note: (err && err.message) || '' }); modal.hidden = false; busy(false); step(0); payErr.textContent = 'Something went wrong starting the payment. Please try again.'; },
@@ -474,7 +511,7 @@
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(data => {
       if (data.checkout) Checkout.configure(data.checkout);
-      if (data.spots) Spots.configure(data.spots);
+      Deadline.onExpire(price => { if (price) Checkout.configure({ amount: price }); });
       if (data.notifications) startNotifications(data.notifications);
     })
     .catch(err => console.warn('offer.json could not be loaded; showing the numbers written in index.html.', err));

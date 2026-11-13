@@ -8,11 +8,6 @@
     "thankYouUrl": "thank-you.html"
   },
 
-  "spots": {
-    "total": 70,
-    "start": 42
-  },
-
   "notifications": {
     "everySeconds": 30,
     "visibleSeconds": 6,

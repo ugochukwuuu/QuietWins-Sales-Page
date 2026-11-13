@@ -37,8 +37,6 @@ Then open http://localhost:5173.
 | `checkout.amount` | Amount charged, in naira |
 | `checkout.leadEndpoint` | The Google Sheet web-app link (ends in `/exec`), see below |
 | `checkout.thankYouUrl` | Page buyers are sent to after paying |
-| `spots.total` | Number of founding spots ("/70 spots taken", "first 70 people") |
-| `spots.start` | How many spots show as taken when the page loads |
 | `notifications.everySeconds` | How often the purchase notification appears |
 | `notifications.visibleSeconds` | How long each notification stays on screen |
 | `notifications.sound` | `true` plays a short "ching" (only after the visitor has tapped or scrolled the page) |
@@ -47,6 +45,25 @@ Then open http://localhost:5173.
 
 Prices shown on the page (₦8,000, ₦15,000, the value stack) are written directly in `index.html`.
 If the price changes, also update `checkout.amount`, `PRODUCT.value` in `script.js` and `thank-you.js`, and `EXPECTED_AMOUNT_KOBO` in `email/apps-script.gs`.
+
+## Founding-price deadline (countdown)
+
+The deadline and the price after it are on the `<html>` tag at the top of `index.html`:
+
+```html
+<html lang="en" data-deadline="2026-11-16T00:00:00+01:00" data-price-after="15000">
+```
+
+`+01:00` is Lagos time. `2026-11-16T00:00:00` means midnight at the end of Sunday 15 November.
+The countdowns (top of the page, the offer under the bonuses, the "Wait…" pop-up and the sticky bar) and the
+written date ("Sunday 15 November at midnight") all follow this value.
+
+When the deadline passes, for new visitors and live for anyone on the page:
+every price switches to `data-price-after`, checkout charges that amount, the countdowns, the "Wait…" pop-up and
+the "lowest price" pill disappear, and the buttons read "Get instant access".
+
+To run a new discount window, change `data-deadline` to the new end time (and `checkout.amount` in `offer.json`
+if the discount price changes).
 
 ## Replacing media
 
