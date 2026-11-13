@@ -45,7 +45,7 @@ Then open http://localhost:5173.
 | `notifications.product` | Product name shown in the notification |
 | `notifications.buyers` | Names shown in the notifications, picked in random order |
 
-Prices shown on the page (₦14,500, ₦30,000, the value stack) are written directly in `index.html`.
+Prices shown on the page (₦8,000, ₦15,000, the value stack) are written directly in `index.html`.
 If the price changes, also update `checkout.amount`, `PRODUCT.value` in `script.js` and `thank-you.js`, and `EXPECTED_AMOUNT_KOBO` in `email/apps-script.gs`.
 
 ## Replacing media
@@ -109,7 +109,7 @@ They only switch on when the page is served from quietwins.online, so local prev
 | `InitiateCheckout` (both) | The checkout pop-up opens |
 | `Purchase` (Meta) / `CompletePayment` (TikTok) | The thank-you page loads after a payment (once per payment reference) |
 
-Events carry the product name, `value: 14500` and `currency: NGN`, set in `PRODUCT` near the bottom of `script.js`.
+Events carry the product name, `value: 8000` and `currency: NGN`, set in `PRODUCT` near the bottom of `script.js`.
 If the price changes, update `PRODUCT.value` too (in `script.js` and `thank-you.js`).
 
 ## Link previews

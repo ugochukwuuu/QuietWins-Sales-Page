@@ -274,7 +274,7 @@
   /* ---------- Ad pixel events (TikTok + Meta) ----------
      The base pixels and PageView live in <head>; they only exist on the live domain.
      If the price changes, update PRODUCT.value so ad reports show the right amount. */
-  const PRODUCT = { id: 'photo-to-viral-video', name: 'From Photo to Viral Video: The Realistic AI Method', value: 14500, currency: 'NGN' };
+  const PRODUCT = { id: 'photo-to-viral-video', name: 'From Photo to Viral Video: The Realistic AI Method', value: 8000, currency: 'NGN' };
 
   function trackEvent(name) {
     try {

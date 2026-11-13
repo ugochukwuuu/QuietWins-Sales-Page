@@ -27,7 +27,7 @@
  * For higher volume, swap MailApp for Brevo / Resend / Mailchimp Transactional with the same HTML.
  */
 var TELEGRAM_URL = 'https://t.me/+oFJn_kHmTOk1ZWJk';
-var EXPECTED_AMOUNT_KOBO = 14500 * 100; // keep in sync with checkout.amount in offer.json
+var EXPECTED_AMOUNT_KOBO = 8000 * 100; // keep in sync with checkout.amount in offer.json
 var FROM_NAME = 'Quietwins';
 var SUBJECT = "You're in! Your order details + Telegram group link 🎉";
 var PRODUCT = 'From Photo to Viral Video: The Realistic AI Method + 4 bonuses';
